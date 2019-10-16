@@ -133,16 +133,50 @@ entity_df = pd.DataFrame.from_dict(entity_types)
 print(' done')
 
 
+age_bins = {
+    '13-17': [0] * n,
+    '18-34': [0] * n,
+    '35-49': [0] * n,
+    '50-64': [0] * n,
+    '65+': [0] * n
+}
+
+
 # In[9]:
 
 
 # Combine original dataframe with newly created, parsed dataframes
 df = pd.concat([df, target_df, entity_df], axis=1, sort=False)
 
+age_ranges = {
+    '13-17': {'min': 13, 'max': 17},
+    '18-34': {'min': 18, 'max': 34},
+    '35-49': {'min': 35, 'max': 49},
+    '50-64': {'min': 50, 'max': 64},
+    '65+': {'min': 65, 'max': 1000},
+}
+
+print('Moving ages into bins...', end='', flush=True)
+for i, (min_age, max_age) in enumerate(zip(df['MinAge'], df['MaxAge'])):
+    if pd.isna(min_age):
+        min_age = 0
+    if pd.isna(max_age):
+        max_age = 1000
+    min_age = float(min_age)
+    max_age = float(max_age)
+    for key, val in age_ranges.items():
+        if min_age <= val['max'] and max_age >= val['min']:
+            age_bins[key][i] = 1
+print(' Done')
+
+df = pd.concat([df, age_bins], axis=1, sort=False)
+
 # Remove parsed and unneeded columns
 df.drop('targets', axis=1, inplace=True)
 df.drop('entities', axis=1, inplace=True)
-df.drop('Like', axis=1, inplace=True)
+df.drop('List', axis=1, inplace=True)
+df.drop('Engaged with content', axis=1, inplace=True)
+df.drop('Age', axis=1, inplace=True)
 
 
 # In[10]:
@@ -191,7 +225,7 @@ for prob in df['political_probability']:
         political_probability.append(1)
     else:
         political_probability.append(0)
-        
+
 df['political_probability_int'] = political_probability
 
 
@@ -220,7 +254,7 @@ for prob in df['listbuilding_fundraising_proba']:
         political_probability.append(1)
     else:
         political_probability.append(0)
-        
+
 df['fundraising_proba_int'] = political_probability
 
 
@@ -240,7 +274,3 @@ df.to_csv(filebase + '-cleaned.csv', index=False)
 
 
 # In[ ]:
-
-
-
-
