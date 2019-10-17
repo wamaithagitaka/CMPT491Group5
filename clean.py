@@ -162,20 +162,26 @@ for i, (min_age, max_age) in enumerate(zip(df['MinAge'], df['MaxAge'])):
         min_age = 0
     if pd.isna(max_age):
         max_age = 1000
-    min_age = float(min_age)
-    max_age = float(max_age)
+    try:
+    	min_age = float(min_age)
+    except ValueError:
+        min_age = 0.0
+    try:
+    	max_age = float(max_age)
+    except ValueError:
+        max_age = 1000
     for key, val in age_ranges.items():
         if min_age <= val['max'] and max_age >= val['min']:
             age_bins[key][i] = 1
 print(' Done')
 
-df = pd.concat([df, age_bins], axis=1, sort=False)
+df = pd.concat([df, pd.DataFrame.from_dict(age_bins)], axis=1, sort=False)
 
 # Remove parsed and unneeded columns
 df.drop('targets', axis=1, inplace=True)
 df.drop('entities', axis=1, inplace=True)
 df.drop('List', axis=1, inplace=True)
-df.drop('Engaged with content', axis=1, inplace=True)
+df.drop('Engaged with Content', axis=1, inplace=True)
 df.drop('Age', axis=1, inplace=True)
 
 
@@ -270,7 +276,7 @@ df.head()
 
 print('Saving cleaned data')
 # Save cleaned data
-df.to_csv(filebase + '-cleaned.csv', index=False)
+df.to_csv(filebase + '-cleaned.csv')
 
 
 # In[ ]:
