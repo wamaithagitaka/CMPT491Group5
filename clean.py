@@ -276,7 +276,7 @@ df.head()
 
 print('Saving cleaned data')
 # Save cleaned data
-df.to_csv(filebase + '-cleaned.csv')
+df.to_csv(filebase + '-cleaned.csv', index_label='id')
 
 
 # In[ ]:
